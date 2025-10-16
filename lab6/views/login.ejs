@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("partials/head.ejs") %>
+  </head>
+  <body>
+    <%- include("partials/header.ejs") %>
+
+    <form id="login" class="login-form" method="post" action="/login">
+      <div class="form-row">
+        <div class="column">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="column">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="column">
+          <button type="submit">Login</button>
+        </div>
+      </div>
+      <% if ("" !== message) { %>
+      <div class="form-row">
+        <div class="column">
+          <p class="error"><%= message %></p>
+        </div>
+      </div>
+      <% } %>
+    </form>
+  </body>
+</html>
