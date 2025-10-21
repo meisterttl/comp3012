@@ -38,13 +38,18 @@ export function connectToDatabase() {
 
 export function getTips(id: string) {
   const user = database.find((data) => id === data.id);
-  const foundTips = user!.tips;
 
-  return foundTips;
+  if (user) {
+    const foundTips = user.tips;
+
+    return foundTips;
+  }
+
+  return false;
 }
 
-export function addTip(id: string, text: string) {
-  const user = database.find((data) => id === data.id);
+export function addTip(uid: string, text: string) {
+  const user = database.find((data) => uid === data.id);
 
   if (user) {
     const tip: TTip = {

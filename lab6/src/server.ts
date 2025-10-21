@@ -30,6 +30,8 @@ app.use(
 );
 
 app.get("/", (req, res) => {
+  if (req.session.loginError) delete req.session.loginError;
+
   if (!req.session.userId) {
     res.redirect("/login");
   } else {
@@ -42,7 +44,6 @@ app.get("/", (req, res) => {
 
 app.get("/login", (req, res) => {
   let message = req.session.loginError ? req.session.loginError : "";
-  if (req.session.loginError) delete req.session.loginError;
 
   res.render("login", { message });
 });
@@ -50,15 +51,12 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const database = connectToDatabase();
   const { username, password } = req.body;
-  let userExists = false;
 
   const foundUser = database.find((data) => {
     if (data.username === username && data.password === password) {
       return data;
     } else {
-      // If the user exists but the password is wrong
-      if (data.username === username && data.password !== password)
-        userExists = true;
+      req.session.loginError = "The username/password is invalid.";
 
       return false;
     }
@@ -69,10 +67,6 @@ app.post("/login", (req, res) => {
 
     res.redirect("/");
   } else {
-    req.session.loginError = userExists
-      ? "The password is invalid."
-      : "The user does not exist.";
-
     res.redirect("/login");
   }
 });
