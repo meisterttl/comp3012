@@ -1,10 +1,12 @@
 import { Strategy } from "passport";
 
 export interface User {
-  id: number;
+  id: number | string;
   name: string;
-  email: string;
-  password: string;
+  email?: string;
+  profileUrl?: string;
+  password?: string;
+  role: string;
 }
 
 export interface PassportStrategy {

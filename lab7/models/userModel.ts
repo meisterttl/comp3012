@@ -1,4 +1,6 @@
-const database = [
+import { User } from "../interfaces/index";
+
+const database: User[] = [
   {
     id: 1,
     name: "Jimmy Smith",
@@ -22,15 +24,21 @@ const database = [
   },
   {
     id: 4,
-    name: "Osto",
+    name: "OSTOmatopoeia",
     email: "osto@gmail.com",
     password: "osto",
     role: "admin",
   },
+  {
+    id: 5,
+    name: "Boo Urns",
+    email: "boo@gmail.com",
+    password: "boo",
+    role: "user",
+  },
 ];
 
 const userModel = {
-  /* DOUBLE CHECK FIX ME (types) 😭 */
   findOne: (email: string) => {
     const user = database.find((user) => user.email === email);
     if (user) {
@@ -39,13 +47,23 @@ const userModel = {
     return null;
     // throw new Error(`Couldn't find user with email: ${email}`);
   },
-  /* DOUBLE CHECK FIX ME (types) 😭 */
-  findById: (id: number) => {
+  findById: (id: number | string) => {
     const user = database.find((user) => user.id === id);
     if (user) {
       return user;
     }
-    throw new Error(`Couldn't find user with id: ${id}`);
+    return null;
+    // throw new Error(`Couldn't find user with id: ${id}`);
+  },
+  addUser: (user: any, role: string) => {
+    const newUser: User = {
+      id: user.id,
+      name: user.displayName,
+      profileUrl: user.profileUrl,
+      role: role,
+    };
+
+    database.push(newUser);
   },
 };
 

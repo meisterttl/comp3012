@@ -1,0 +1,15 @@
+<h1 class="mt-4">Admin Dashboard</h1>
+<p class="lead mb-3">Welcome <%= user.name %></p>
+<% if(sessions) { %>
+<p>Current Active Sessions:</p>
+<hr />
+<% sessions.forEach((session) => { %>
+<dl>
+  <dt>SessionID:</dt>
+  <dd><%= session.sid %></dd>
+  <dt>UserId:</dt>
+  <dd><%= session.uid %></dd>
+</dl>
+<a href="/sessions/<%= session.sid %>/revoke">Revoke Session</a>
+<hr />
+<% }); %> <% } %>

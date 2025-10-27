@@ -1,11 +1,8 @@
 import express from "express";
 import expressLayouts from "express-ejs-layouts";
-import session from "express-session";
-import MemoryStore from "memorystore";
+import session, { MemoryStore } from "express-session";
 import path from "path";
 import passportMiddleware from "./middleware/passportMiddleware";
-
-const Store = MemoryStore(session);
 
 const port = process.env.port || 8000;
 
@@ -15,9 +12,7 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
-    store: new Store({
-      checkPeriod: 24 * 60 * 60 * 1000,
-    }),
+    store: new MemoryStore(),
     secret: "stick of truth",
     resave: false,
     saveUninitialized: false,

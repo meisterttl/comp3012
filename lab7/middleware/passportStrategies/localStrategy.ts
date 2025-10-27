@@ -31,16 +31,10 @@ const localStrategy = new LocalStrategy(
   }
 );
 
-/*
-DOUBLE CHECK FIX ME (types) 😭
-*/
 passport.serializeUser(function (user: User, done) {
   done(null, user.id);
 });
 
-/*
-DOUBLE CHECK FIX ME (types) 😭
-*/
 passport.deserializeUser(function (id: number, done) {
   let user = getUserById(id);
   if (user) {
