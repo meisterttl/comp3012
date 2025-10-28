@@ -3,6 +3,11 @@ import {
   adminAuthenticated,
   ensureAuthenticated,
 } from "../middleware/checkAuth";
+import { SessionData } from "express-session";
+
+interface SSession {
+  [sid: string]: SessionData;
+}
 
 const router = express.Router();
 
@@ -17,30 +22,31 @@ router.get("/dashboard", ensureAuthenticated, (req, res) => {
 });
 
 router.get("/admin", adminAuthenticated, (req, res) => {
-  req.sessionStore.all!((err, session) => {
-    if (err) console.log(err);
+  req.sessionStore.all!((err, sessions) => {
+    if (err) return console.log(err);
 
-    const sessions: {
+    const sessionIds: {
       sid: string;
       uid: number | string;
     }[] = [];
 
-    for (const data in session) {
-      const key: string = data;
-      sessions.push({
+    for (const data in sessions) {
+      const key = data as keyof SSession;
+      sessionIds.push({
         sid: data,
-        uid: session[key].passport.user, // I don't know how to deal with this error
+        // @ts-ignore
+        uid: sessions[key].passport.user, // I don't know how to deal with this typescript error, would love some feedback on this
       });
     }
 
     res.render("admin", {
       user: req.user,
-      sessions: sessions,
+      sessionIds: sessionIds,
     });
   });
 });
 
-router.get("/sessions/:id/revoke", adminAuthenticated, (req, res) => {
+router.get("/admin/sessions/:id/revoke", adminAuthenticated, (req, res) => {
   const userSId = req.params.id;
 
   const revokeSession = (sid: string) => {

@@ -1,6 +1,6 @@
 declare module "express-session" {
   interface SessionData {
-    messages?: string[];
+    messages?: string[] | undefined;
   }
 }
 

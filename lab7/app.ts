@@ -12,7 +12,6 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
-    store: new MemoryStore(),
     secret: "stick of truth",
     resave: false,
     saveUninitialized: false,
@@ -42,9 +41,6 @@ app.use((req, res, next) => {
 
   // console.log(`Session details are: `);
   // console.log((req.session as any).passport);
-
-  // console.log(`Session ID is: `);
-  // console.log(req.sessionID);
   next();
 });
 
