@@ -5,9 +5,16 @@ import {
 } from "../middleware/checkAuth";
 import { SessionData } from "express-session";
 
-interface SSession {
+// Type testing
+type MySession = {
   [sid: string]: SessionData;
-}
+};
+type KeyString = keyof MySession & string;
+type KeyExtract = Extract<keyof MySession, string>;
+// KeyString and KeyExtract should be the same
+type KeyIndex = MySession[keyof MySession];
+type MySessionData = MySession[KeyExtract];
+// KeyIndex and MySessionData should be the same
 
 const router = express.Router();
 
@@ -22,28 +29,65 @@ router.get("/dashboard", ensureAuthenticated, (req, res) => {
 });
 
 router.get("/admin", adminAuthenticated, (req, res) => {
-  req.sessionStore.all!((err, sessions) => {
-    if (err) return console.log(err);
+  if (req.sessionStore && req.sessionStore.all) {
+    req.sessionStore.all!((err, sessions) => {
+      if (err) return console.log(err);
 
-    const sessionIds: {
-      sid: string;
-      uid: number | string;
-    }[] = [];
+      const sessionIds: {
+        sid: string;
+        uid: number | string;
+      }[] = [];
 
-    for (const data in sessions) {
-      const key = data as keyof SSession;
-      sessionIds.push({
-        sid: data,
-        // @ts-ignore
-        uid: sessions[key].passport.user, // I don't know how to deal with this typescript error, would love some feedback on this
+      // I think this method is nigh impossible to correctly type
+      // So I decided not to use for...in loop to access session info
+      // for (const data in sessions as MySession) {
+      //   const key: KeyExtract = data;
+      //   const sData: MySessionData = sessions[key];
+
+      //   sessionIds.push({
+      //     sid: key,
+      //     uid: sData.passport!.user,
+      //   });
+      // }
+
+      // Easiest method so far
+      const sessionArrays = Object.entries(sessions as SessionData[]);
+      sessionArrays.forEach((session) => {
+        sessionIds.push({
+          sid: session[0],
+          uid: session[1].passport!.user,
+        });
       });
-    }
 
-    res.render("admin", {
-      user: req.user,
-      sessionIds: sessionIds,
+      // Testing other methods
+      // const keys = Object.keys(sessions as SessionData[]);
+      // const sessionMap = new Map(Object.entries(sessions as SessionData[]));
+      // keys.forEach((key) => {
+      //   const session = sessionMap.get(key);
+
+      //   sessionIds.push({
+      //     sid: key,
+      //     uid: session!.passport!.user,
+      //   });
+      // });
+
+      // Testing other methods
+      // Getting session data using sessions[key] seems really complicated
+      // const keys = Object.keys(sessions as SessionData[]);
+      // keys.forEach((key) => {
+      //   const session = sessions[key];
+      //   sessionIds.push({
+      //     sid: key,
+      //     uid: session.passport!.user,
+      //   });
+      // });
+
+      res.render("admin", {
+        user: req.user,
+        sessionIds: sessionIds,
+      });
     });
-  });
+  }
 });
 
 router.get("/admin/sessions/:id/revoke", adminAuthenticated, (req, res) => {

@@ -1,7 +1,6 @@
 import express from "express";
 import passport from "passport";
 import { forwardAuthenticated } from "../middleware/checkAuth";
-import { userModel } from "../models/userModel";
 
 const router = express.Router();
 
@@ -30,9 +29,6 @@ router.get(
   "/github/callback",
   passport.authenticate("github", { failureRedirect: "/auth/login" }),
   function (req, res) {
-    const userExists = userModel.findById(req.user!.id);
-    if (!userExists) userModel.addUser(req.user, "user");
-
     res.redirect("/dashboard");
   }
 );

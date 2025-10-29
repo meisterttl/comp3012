@@ -62,7 +62,7 @@ const userModel = {
       profileUrl: user.profileUrl,
       role: role,
     };
-
+    console.log(newUser);
     database.push(newUser);
   },
 };

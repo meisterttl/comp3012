@@ -5,7 +5,7 @@ import {
   getUserById,
   isUserValid,
 } from "../../controllers/userController";
-import { User, PassportStrategy } from "../../interfaces/index";
+import { PassportStrategy } from "../../interfaces/index";
 
 const localStrategy = new LocalStrategy(
   {
@@ -17,25 +17,31 @@ const localStrategy = new LocalStrategy(
 
     if (user) {
       if (isUserValid(user, password)) {
-        done(null, user);
+        return done(null, user);
       } else {
-        done(null, false, {
+        return done(null, false, {
           message: "Password is wrong",
         });
       }
     } else {
-      done(null, false, {
+      return done(null, false, {
         message: `Couldn't find user with email: ${email}`,
       });
     }
   }
 );
 
-passport.serializeUser(function (user: User, done) {
+passport.serializeUser(function (
+  user: Express.User,
+  done: (err: any, id?: unknown) => void
+) {
   done(null, user.id);
 });
 
-passport.deserializeUser(function (id: number, done) {
+passport.deserializeUser(function (
+  id: number | string,
+  done: (err: any, user?: false | Express.User | null | undefined) => void
+) {
   let user = getUserById(id);
   if (user) {
     done(null, user);

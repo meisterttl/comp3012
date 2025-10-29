@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { Strategy as GitHubStrategy } from "passport-github2";
 import { PassportStrategy } from "../../interfaces/index";
+import { userModel } from "../../models/userModel";
 
 const dirPath = path.join(__dirname, "../../");
 const filePath = path.join(dirPath, ".env");
@@ -17,17 +18,17 @@ const githubStrategy: GitHubStrategy = new GitHubStrategy(
     callbackURL: "http://localhost:8000/auth/github/callback",
     passReqToCallback: true,
   },
-
   async (
     req: Request,
     accessToken: string,
     refreshToken: string,
     profile: any,
-    done: (err?: Error | null, profile?: any) => void
+    done: (err?: Error | null | undefined, profile?: any) => void
   ) => {
-    process.nextTick(function () {
-      return done(null, profile);
-    });
+    const userExists = userModel.findById(profile.id);
+    if (!userExists) userModel.addUser(profile, "user");
+
+    return done(null, profile);
   }
 );
 
@@ -38,11 +39,17 @@ const githubStrategy: GitHubStrategy = new GitHubStrategy(
 //   the user by ID when deserializing.  However, since this example does not
 //   have a database of user records, the complete GitHub profile is serialized
 //   and deserialized.
-passport.serializeUser(function (user: any, done) {
+passport.serializeUser(function (
+  user: any,
+  done: (err: any, id?: unknown) => void
+) {
   done(null, user);
 });
 
-passport.deserializeUser(function (obj: any, done) {
+passport.deserializeUser(function (
+  obj: any,
+  done: (err: any, user?: false | Express.User | null | undefined) => void
+) {
   done(null, obj);
 });
 
