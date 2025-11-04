@@ -5,7 +5,6 @@ import {
 } from "../middleware/checkAuth";
 import { SessionData } from "express-session";
 
-// Type testing
 type MySession = {
   [sid: string]: SessionData;
 };
@@ -34,7 +33,6 @@ router.get("/admin", adminAuthenticated, (req, res) => {
         uid: number | string;
       }[] = [];
 
-      // I know it's late but OMG, I finally fixed this issue!!!
       for (const data in sessions as SessionData[]) {
         const key = data as keyof typeof sessions;
         const sData: MySessionData = sessions![key];
@@ -44,38 +42,6 @@ router.get("/admin", adminAuthenticated, (req, res) => {
           uid: sData.passport!.user,
         });
       }
-
-      // Easiest method so far
-      const sessionArrays = Object.entries(sessions as SessionData[]);
-      sessionArrays.forEach((session) => {
-        sessionIds.push({
-          sid: session[0],
-          uid: session[1].passport!.user,
-        });
-      });
-
-      // Testing other methods
-      // const keys = Object.keys(sessions as SessionData[]);
-      // const sessionMap = new Map(Object.entries(sessions as SessionData[]));
-      // keys.forEach((key) => {
-      //   const session = sessionMap.get(key);
-
-      //   sessionIds.push({
-      //     sid: key,
-      //     uid: session!.passport!.user,
-      //   });
-      // });
-
-      // Testing other methods
-      // Getting session data using sessions[key] seems really complicated
-      // const keys = Object.keys(sessions as SessionData[]);
-      // keys.forEach((key) => {
-      //   const session = sessions[key];
-      //   sessionIds.push({
-      //     sid: key,
-      //     uid: session.passport!.user,
-      //   });
-      // });
 
       res.render("admin", {
         user: req.user,
