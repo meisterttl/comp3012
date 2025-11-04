@@ -10,11 +10,7 @@ type MySession = {
   [sid: string]: SessionData;
 };
 type KeyString = keyof MySession & string;
-type KeyExtract = Extract<keyof MySession, string>;
-// KeyString and KeyExtract should be the same
-type KeyIndex = MySession[keyof MySession];
-type MySessionData = MySession[KeyExtract];
-// KeyIndex and MySessionData should be the same
+type MySessionData = MySession[KeyString];
 
 const router = express.Router();
 
@@ -38,17 +34,16 @@ router.get("/admin", adminAuthenticated, (req, res) => {
         uid: number | string;
       }[] = [];
 
-      // I think this method is nigh impossible to correctly type
-      // So I decided not to use for...in loop to access session info
-      // for (const data in sessions as MySession) {
-      //   const key: KeyExtract = data;
-      //   const sData: MySessionData = sessions[key];
+      // I know it's late but OMG, I finally fixed this issue!!!
+      for (const data in sessions as SessionData[]) {
+        const key = data as keyof typeof sessions;
+        const sData: MySessionData = sessions![key];
 
-      //   sessionIds.push({
-      //     sid: key,
-      //     uid: sData.passport!.user,
-      //   });
-      // }
+        sessionIds.push({
+          sid: key,
+          uid: sData.passport!.user,
+        });
+      }
 
       // Easiest method so far
       const sessionArrays = Object.entries(sessions as SessionData[]);
