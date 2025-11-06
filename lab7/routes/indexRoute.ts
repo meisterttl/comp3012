@@ -33,12 +33,27 @@ router.get("/admin", adminAuthenticated, (req, res) => {
         uid: number | string;
       }[] = [];
 
-      for (const data in sessions as SessionData[]) {
-        const key = data as keyof typeof sessions;
-        const sData: MySessionData = sessions![key];
+      // I thought this was the solution, but it turns out I was wrong
+      // key constant becomes "never" type which is wrong
+      // for (const data in sessions as SessionData[]) {
+      //   const key = data as keyof typeof sessions;
+      //   const sData: MySessionData = sessions![key];
+      //   sessionIds.push({
+      //     sid: key,
+      //     uid: sData.passport!.user,
+      //   });
+      // }
+
+      // I believe this is the actual solution
+      // At first I thought key should have "string" type which made sense because 'session id' is a string but I realized this is wrong
+      // key constant should be "key" of the object (so in this case, 'keyof SessionData[]')
+      const allSessions = sessions as SessionData[];
+      for (const data in allSessions) {
+        const key = data as keyof typeof allSessions;
+        const sData = allSessions[key] as MySessionData;
 
         sessionIds.push({
-          sid: key,
+          sid: data,
           uid: sData.passport!.user,
         });
       }
