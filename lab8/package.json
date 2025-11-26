@@ -1,0 +1,20 @@
+{
+  "name": "mapwork",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "parcel index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faker-js/faker": "^8.3.1",
+    "@types/googlemaps": "^3.43.3",
+    "parcel": "^2.10.3",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3"
+  }
+}
