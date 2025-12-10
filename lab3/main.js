@@ -1,3 +1,8 @@
+/*
+Your task is to convert a CSV containing items on a restaurant menu to a .txt file. 
+A .csv file is a comma separated values file, where each line represents one entry, and each part of the entry is separated by a comma.
+*/
+
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -8,10 +13,11 @@ const __dirname = path.dirname(__filename);
 const inputFilePath = path.join(__dirname, "menu.csv");
 const outputFilePath = path.join(__dirname, "menu.txt");
 
-const menuObjSorting = (obj) => {
+const menuSorting = (obj) => {
   for (const item in obj) {
     obj[item].sort();
   }
+
   return obj;
 };
 
@@ -22,48 +28,73 @@ const adjustPrice = (number, multiplier, digits) =>
   parseFloat(number * multiplier).toFixed(digits);
 
 fs.readFile(inputFilePath, { encoding: "utf8" })
-  .then((menu) => menu.split(EOL))
-  .then((array) => {
+  .then((menu) => {
+    const menuArray = menu.split(EOL);
     const menuObj = {};
+    let menuData = "";
 
-    array
+    menuArray
       .filter((item) => "" !== item) // just in case .csv file contains empty rows
       .map((item) => {
         const [mealType, ...rest] = item.split(",");
 
         // basic error checking to make sure each menu item follows the same structure
         if ("" !== mealType && 3 === rest.length) {
-          if (!(mealType in menuObj)) menuObj[mealType] = [];
+          if (!(mealType in menuObj)) {
+            menuObj[mealType] = [];
+          }
+
           menuObj[mealType].push(rest);
         }
       });
 
-    return menuObjSorting(menuObj);
-  })
-  .then((object) => {
-    const arrayObj = Object.entries(object);
-    let data = "";
+    menuSorting(menuObj);
+
+    const array = Object.entries(menuObj);
 
     // simple check just to make sure object isn't empty
-    if (0 !== arrayObj.length) {
-      const lastKey = arrayObj[arrayObj.length - 1][0]; // needed just so there are no additional EOLs at the end
+    if (0 !== array.length) {
+      const lastKey = array[array.length - 1][0]; // needed just so there are no additional EOLs at the end
 
-      for (const items in object) {
-        data += `* ${capitalize(items)} Items *`;
+      for (const items in menuObj) {
+        menuData += `* ${capitalize(items)} Items *`;
 
-        object[items].map((item) => {
+        menuObj[items].map((item) => {
           const price = Number(item.pop().slice(1)); // meal price will always have $ in the front and be the last element of the array
 
-          if (!Number.isNaN(price))
-            data += `${EOL}$${adjustPrice(price, 1.8, 2)} ${item.join(", ")}`;
+          if (!Number.isNaN(price)) {
+            menuData += `${EOL}$${adjustPrice(price, 1.8, 2)} ${item.join(
+              ", "
+            )}`;
+          }
         });
 
-        if (lastKey !== items) data += `${EOL}${EOL}`;
+        if (lastKey !== items) {
+          menuData += `${EOL}${EOL}`;
+        }
       }
     }
 
-    return data;
+    return menuData;
   })
   .then((data) => fs.writeFile(outputFilePath, data))
   .catch((err) => console.log(err))
   .finally(() => console.log("Program is finished"));
+
+/*
+Output: 
+
+Program is finished
+
+* Lunch Items *
+$15.46 bento box a - chicken teriyaki, box combo
+$17.26 bento box b - sashimi, box combo
+
+* Dinner Items *
+$7.11 roe, 2 rolls
+$8.10 tuna roll, 3 rolls
+$6.30 vegetable sushi, 6 rolls
+
+* Dessert Items *
+$14.40 cheesecake, 1 slice
+*/
